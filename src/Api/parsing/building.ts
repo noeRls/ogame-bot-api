@@ -1,10 +1,10 @@
-import { Building, Upgrade, ResourceType, ResourceList, EMPTY_RESOURCE_LIST, Status } from "./gameTypes";
-import { stringToStatus, stringToResourceType } from "./typeHelper";
-import { getCosts } from "./ogameStatic";
+import { Building, Upgrade, ResourceType, ResourceList, EMPTY_RESOURCE_LIST, Status } from "../gameTypes";
+import { stringToStatus, stringToResourceType } from "../typeHelper";
+import { getCosts } from "../ogameStatic";
 import { Page, ElementHandle } from 'puppeteer';
+import { openPannel } from "./pannel";
 
 const COST_SELECTOR = '[class=costs]';
-const getUpgradePannelXpath = (id: number) => `//*[@data-technology-id=${id}][@id='technologydetails']`;
 
 const getBuildingUpgradeUrl = async (status: Status, elem: ElementHandle<Element>): Promise<string | undefined> => {
     if (status === 'on') {
@@ -66,8 +66,7 @@ const getUpgradeTime = async (page: Page): Promise<number> => {
 }
 
 const loadUpgrade = async (building: Building, elem: ElementHandle<Element>, page: Page): Promise<Upgrade> => {
-    await elem.click();
-    await page.waitForXPath(getUpgradePannelXpath(building.id), {timeout: 2000});
+    await openPannel(page, elem, building.id);
     return {
         costs: await getUpgradeCosts(page),
         url: await getBuildingUpgradeUrl(building.status, elem),

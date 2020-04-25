@@ -29,7 +29,8 @@ export class Api {
   }
 
   async me(): Promise<User> {
-    const { data } = await axios.get('/users/me');
+    const { data } : { data: User } = await axios.get('/users/me');
+    console.log(`Connected with ${data.email}`);
     return data;
   }
 
@@ -49,6 +50,7 @@ export class Api {
   }
 
   async loadGame(account: Account): Promise<GameApi> {
+    console.log(`Loading game api ${account.server.number}...`);
     const { data: login } : { data: GameLoginResponse} = await axios.get(`/users/me/loginLink?id=${account.id}&server[language]=${account.server.language}&server[number]=${account.server.number}&clickedButton=account_list`);
     const api = new GameApi(this.__cookie, account, login.url);
     await api.init();

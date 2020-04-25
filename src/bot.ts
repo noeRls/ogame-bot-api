@@ -63,14 +63,31 @@ const selectAccount = async (api: Api): Promise<Account> => {
     }
 }
 
+function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export async function bot(): Promise<void> {
     const api = new Api();
     await api.login('noe.rivals@gmail.com', 'Xr2Q1S5d@u8$O$rZ');
     const account = await selectAccount(api);
     const game = await api.loadGame(account);
     try {
-        await game.listRessources();
-        await game.ressourceFactoryList();
+        while (true) {
+            console.log('fetching...')
+            const resources = await game.listRessources();
+            const factory = await game.ressourceFactoryList();
+            for (let i = 0; i < factory.mines.length; i++) {
+                const mine = factory.mines[i];
+                if (game.canUpgrade(mine.upgrade, resources)) {
+                    console.log('upgrade !');
+                    await game.makeUpgrade(mine.upgrade);
+                    break;
+                }
+            }
+            console.log('sleeping')
+            await sleep(60 * 1000);
+        }
     } finally {
         await game.stop();
     }

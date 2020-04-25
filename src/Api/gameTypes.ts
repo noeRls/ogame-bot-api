@@ -1,13 +1,7 @@
-export interface ResourceList {
-    metal: number
-    crystal: number
-    deuterium: number
-    energy: number
-    darkmatter: number
-}
-
 export type ResourceType = 'metal' | 'crystal' | 'deuterium' | 'energy' | 'darkmatter'
 export type Status = 'disabled' | 'on' | 'off';
+
+export type ResourceList = Record<ResourceType, number>;
 
 export interface Upgrade {
     url?: string;
@@ -32,7 +26,7 @@ export interface Building {
 
 export interface Mine extends Building {
     type: ResourceType;
-    production: number;
+    production?: number; // TODO implement
 }
 
 export interface Storage extends Building {
