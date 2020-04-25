@@ -1,5 +1,5 @@
-import { Building, Upgrade, ResourceType, ResourceList, EMPTY_RESOURCE_LIST, Status } from "../gameTypes";
-import { stringToStatus, stringToResourceType } from "../typeHelper";
+import { Building, Upgrade, ResourceType, ResourceList, Status, BuildingLight, RecordConditional, BuildingType, BuildingList } from "../gameTypes";
+import { stringToStatus, stringToResourceType, stringToFacilitieType, getEmptyResourceList } from "../typeHelper";
 import { getCosts } from "../ogameStatic";
 import { Page, ElementHandle } from 'puppeteer';
 import { openPannel } from "./pannel";
@@ -17,7 +17,7 @@ const getBuildingUpgradeUrl = async (status: Status, elem: ElementHandle<Element
 const getUpgradeCosts = async (page: Page): Promise<ResourceList> => {
     const costElem = await page.$(COST_SELECTOR);
     const resourcesElem = await costElem.$$('[class*=resource]');
-    const costs = EMPTY_RESOURCE_LIST;
+    const costs = getEmptyResourceList();
     await Promise.all(resourcesElem.map(async resourceElem => {
         const { value, classname } = await resourceElem.evaluate(elem => ({
             value: Number(elem.getAttribute('data-value')),
@@ -65,7 +65,7 @@ const getUpgradeTime = async (page: Page): Promise<number> => {
     return parseDateInterval(timeString);
 }
 
-const loadUpgrade = async (building: Building, elem: ElementHandle<Element>, page: Page): Promise<Upgrade> => {
+const loadUpgrade = async (building: BuildingLight, elem: ElementHandle<Element>, page: Page): Promise<Upgrade> => {
     await openPannel(page, elem, building.id);
     return {
         costs: await getUpgradeCosts(page),
@@ -74,7 +74,7 @@ const loadUpgrade = async (building: Building, elem: ElementHandle<Element>, pag
     };
 }
 
-export const loadBuilding = async (elem: ElementHandle<Element>, page: Page): Promise<Building> => {
+export const loadBuildingLight = async (elem: ElementHandle<Element>, page: Page): Promise<BuildingLight> => {
     const id = Number(await elem.evaluate(e => e.getAttribute('data-technology')));
     const status = stringToStatus(await elem.evaluate(e => e.getAttribute('data-status')));
     const level = 1 /* await elem.evaluate(e => {
@@ -82,11 +82,37 @@ export const loadBuilding = async (elem: ElementHandle<Element>, page: Page): Pr
         if (!levelElem) levelElem = e.querySelector('[amount]');
         return Number(levelElem.getAttribute('data-value')) + Number(levelElem.getAttribute('data-bonus'));
     })*/
-    const building: Building = {
+    const building: BuildingLight = {
         id,
         status,
         level,
     };
     building.upgrade = await loadUpgrade(building, elem, page);
     return building
+}
+
+export async function loadBuildings<T extends BuildingType>(
+    page: Page,
+    allTypes: T[],
+    silenceError: Boolean = false,
+    selector: string = "[data-technology]"
+): Promise<BuildingList<T>> {
+    const elems = await page.$$(selector);
+    const buildings: BuildingList<T> = {};
+    for (let i = 0; i < elems.length; i++) {
+        const elem = elems[i];
+        const classnames = (await elem.evaluate(e => e.getAttribute('class'))).split(' ');
+        const type: T | undefined = allTypes.find(t => classnames.some(c => c.toLowerCase() === t.toLowerCase()));
+        if (!type) {
+            if (!silenceError) console.error(`Unkown building type ${classnames} not in ${allTypes}`);
+            continue;
+        }
+        const building = await loadBuildingLight(elem, page);
+        buildings[type] = {
+            ...building,
+            type,
+            __elem: elem,
+        };
+    }
+    return buildings;
 }

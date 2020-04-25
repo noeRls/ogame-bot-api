@@ -1,10 +1,10 @@
 import Axios, { AxiosInstance } from 'axios';
 import { User, Server, Account } from '../types';
 import * as puppeteer from 'puppeteer';
-import { ResourceList, ResourceFactoryList, Mine, Building, Upgrade, ResourceType } from './gameTypes';
-import { loadBuilding } from './parsing/building';
+import { ResourceList, ResourceFactoryList, Mine, Building, Upgrade, ResourceType, Facilities, FacilitiesList } from './gameTypes';
 import { stringToResourceType } from './typeHelper';
 import { loadMinesAndStorage, loadResources } from './parsing/resources';
+import { loadFacilities } from './parsing/facilities';
 
 export class GameApi {
     account: Account
@@ -42,6 +42,10 @@ export class GameApi {
         await this.page.goto(`${this.getServerUrl()}/game/index.php?page=ingame&component=supplies`);
     }
 
+    async goToFacilitiesPage() {
+        await this.page.goto(`${this.getServerUrl()}/game/index.php?page=ingame&component=facilities`);
+    }
+
     async init() {
         this.browser = await puppeteer.launch();
         this.page = await this.browser.newPage();
@@ -57,7 +61,7 @@ export class GameApi {
             height: 960
         });
         await this.page.goto(this.loginUrl);
-        await this.page.screenshot({ path: './out.png' });
+        // await this.page.screenshot({ path: './out.png' });
     }
 
     async stop() {
@@ -73,6 +77,11 @@ export class GameApi {
         await this.goToResourcePage();
         const res = await loadMinesAndStorage(this.page);
         return res;
+    }
+
+    async facilitiesList() : Promise<FacilitiesList> {
+        await this.goToFacilitiesPage();
+        return loadFacilities(this.page);
     }
 
     async makeUpgrade(upgrade: Upgrade) {

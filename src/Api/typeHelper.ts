@@ -1,11 +1,20 @@
-import { Status, ResourceList, ResourceType } from "./gameTypes";
+import { Status, ResourceList, ALL_RESOURCES, ResourceType, FacilitieType, ALL_FACILITIES, ALL_STATUS } from "./gameTypes";
 
 export const stringToStatus = (status: string): Status => {
-    const allStatus: Status[] = ['disabled', 'on', 'off']
-    return allStatus.find(s => s === status) || 'off';
+    return ALL_STATUS.find(s => s === status) || 'off';
 }
 
 export const stringToResourceType = (resource: string, include: Boolean = false): ResourceType | undefined => {
-    const allResourceType: ResourceType[] = ['metal', 'crystal', 'deuterium', 'energy', 'darkmatter'];
-    return allResourceType.find(r => include ? resource.includes(r) : r === resource);
+    return ALL_RESOURCES.find(r => include ? resource.includes(r) : r === resource);
 }
+export const stringToFacilitieType = (facilitie: string): FacilitieType | undefined => {
+    return ALL_FACILITIES.find(f => f === facilitie);
+}
+
+export const getEmptyResourceList = (): ResourceList => ({
+    metal: 0,
+    crystal: 0,
+    deuterium: 0,
+    energy: 0,
+    darkmatter: 0,
+});

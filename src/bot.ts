@@ -1,6 +1,7 @@
 import { Api } from './Api/LobbyApi';
 import * as readline from 'readline';
 import { Account, Server } from './types';
+import { GameApi } from './Api/GameApi';
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -67,27 +68,37 @@ function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const dumbLoop = async (game: GameApi) => {
+    while (true) {
+        console.log('fetching...')
+        const resources = await game.listRessources();
+        const factory = await game.ressourceFactoryList();
+        console.log(resources);
+        const mines = Object.values(factory.mines);
+        for (let i = 0; i < mines.length; i++) {
+            const mine = mines[i];
+            console.log(mine);
+            if (game.canUpgrade(mine.upgrade, resources)) {
+                console.log('upgrade !');
+                await game.makeUpgrade(mine.upgrade);
+                break;
+            }
+        }
+        console.log('sleeping');
+        return;
+        await sleep(60 * 1000);
+    }
+}
+
 export async function bot(): Promise<void> {
     const api = new Api();
     await api.login('noe.rivals@gmail.com', 'Xr2Q1S5d@u8$O$rZ');
     const account = await selectAccount(api);
     const game = await api.loadGame(account);
     try {
-        while (true) {
-            console.log('fetching...')
-            const resources = await game.listRessources();
-            const factory = await game.ressourceFactoryList();
-            for (let i = 0; i < factory.mines.length; i++) {
-                const mine = factory.mines[i];
-                if (game.canUpgrade(mine.upgrade, resources)) {
-                    console.log('upgrade !');
-                    await game.makeUpgrade(mine.upgrade);
-                    break;
-                }
-            }
-            console.log('sleeping')
-            await sleep(60 * 1000);
-        }
+        // console.log(await game.facilitiesList());
+        // console.log(await game.listRessources());
+        // console.log(await game.ressourceFactoryList());
     } finally {
         await game.stop();
     }

@@ -1,35 +1,36 @@
 import { ElementHandle, Page } from 'puppeteer'
-import { Mine, Building, ResourceList, Storage, ResourceFactoryList } from '../gameTypes';
-import { loadBuilding } from './building';
+import { Mine, Building, ResourceList, Storage, ResourceFactoryList, ALL_RESOURCES, ALL_MINES, BuildingList, MineType, MineList, StorageList, ALL_STORAGES } from '../gameTypes';
+import { loadBuildings } from './building';
 import { stringToResourceType } from '../typeHelper';
 import { openPannel } from './pannel';
+import { getMeter } from './utils';
 
 export const loadMinesAndStorage = async (page: Page): Promise<ResourceFactoryList> => {
-    const mines: Mine[] = [];
-    const storage: Storage[] = [];
-    const elements = await page.$$("[data-technology]");
-    for (let i = 0; i < elements.length; i++) {
-        const elem = elements[i];
-        const building = await loadBuilding(elem, page);
-        const classnames = (await elem.evaluate(e => e.getAttribute('class'))).split(' ');
-        const ressourceType = stringToResourceType(classnames.find(cl => stringToResourceType(cl, true)));
-        const allMinesTag = ['mine', 'synthesizer', 'plant'];
-        if (classnames.some(c => allMinesTag.some(t => c.toLowerCase().includes(t)))) {
-            mines.push({
-                ...building,
-                type: ressourceType,
-            });
-        } else if (classnames.some(c => c.toLowerCase().includes('storage'))) {
-            const pannel = await openPannel(page, elem, building.id);
-            const capacity = Number(await pannel.evaluate(e => e.querySelector('meter').getAttribute('max')));
-            storage.push({
-                ...building,
-                type: ressourceType,
-                capacity
-            });
-        }
+    const mines: MineList = {};
+    const storages: StorageList = {};
+    const minesBuilding = Object.values(await loadBuildings(page, ALL_MINES, true));
+    const storagesBuilding = Object.values(await loadBuildings(page, ALL_STORAGES, true));
+    for (let i = 0; i < minesBuilding.length; i++) {
+        const mine = minesBuilding[i]
+        const classnames = (await mine.__elem.evaluate(e => e.getAttribute('class'))).split(' ');
+        const resource = stringToResourceType(classnames.find(cl => stringToResourceType(cl, true)));
+        mines[mine.type] = {
+            ...mine,
+            resource,
+        };
     }
-    return ({ mines, storage });
+    for (let i = 0; i < storagesBuilding.length; i++) {
+        const storage = storagesBuilding[i]
+        const classnames = (await storage.__elem.evaluate(e => e.getAttribute('class'))).split(' ');
+        const resource = stringToResourceType(classnames.find(cl => stringToResourceType(cl, true)));
+        const capacity = (await getMeter(storage.__elem, storage.id, page)).max;
+        storages[storage.type] = {
+            ...storage,
+            resource,
+            capacity,
+        };
+    }
+    return ({ mines, storages });
 }
 
 export const loadResources = async (page: Page): Promise<ResourceList> => {
