@@ -54,7 +54,8 @@ const createNewAccount = async (api: Api): Promise<Account> => {
 
 const selectAccount = async (api: Api): Promise<Account> => {
     const accounts = await api.getAccounts();
-    const selected = await multiSelect(['Create a new account', ...accounts.map(a => `${a.name} - last login: ${a.lastLogin}`)]);
+    const selected = 1 // await multiSelect(['Create a new account', ...accounts.map(a => `${a.name} - last login: ${a.lastLogin}`)]);
+    // @ts-ignore
     if (selected === 0) {
         return createNewAccount(api);
     } else {
@@ -66,8 +67,11 @@ export async function bot(): Promise<void> {
     const api = new Api();
     await api.login('noe.rivals@gmail.com', 'Xr2Q1S5d@u8$O$rZ');
     const account = await selectAccount(api);
-    const game = api.loadGame(account);
-    await game.listRessources();
-
-    //await api.listServers();
+    const game = await api.loadGame(account);
+    try {
+        await game.listRessources();
+        await game.ressourceFactoryList();
+    } finally {
+        await game.stop();
+    }
 }

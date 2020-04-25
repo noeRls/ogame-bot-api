@@ -4,13 +4,16 @@
   "description": "Api to interact with ogame",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:watch": "tsc --watch"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^13.13.0",
-    "axios": "^0.19.2"
+    "@types/puppeteer": "^2.0.1",
+    "axios": "^0.19.2",
+    "puppeteer": "^3.0.1"
   },
   "devDependencies": {
     "typescript": "^3.8.3"

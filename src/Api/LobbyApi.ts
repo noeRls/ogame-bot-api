@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import { User, Server, Account } from '../types';
+import { User, Server, Account, GameLoginResponse } from '../types';
 import { GameApi } from './GameApi';
 
 const axios = Axios.create({
@@ -48,7 +48,10 @@ export class Api {
     this.user.accounts = await this.getAccounts();
   }
 
-  loadGame(account: Account): GameApi {
-    return new GameApi(this.__cookie, account);
+  async loadGame(account: Account): Promise<GameApi> {
+    const { data: login } : { data: GameLoginResponse} = await axios.get(`/users/me/loginLink?id=${account.id}&server[language]=${account.server.language}&server[number]=${account.server.number}&clickedButton=account_list`);
+    const api = new GameApi(this.__cookie, account, login.url);
+    await api.init();
+    return api;
   }
 }

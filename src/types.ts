@@ -59,3 +59,7 @@ export interface Server {
     debrisFieldFactorDefence: number
   }
 }
+
+export interface GameLoginResponse {
+  url: string
+}
