@@ -5,6 +5,7 @@
     "sourceMap": true,
     "outDir": "build",
     "noImplicitReturns": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "declaration": true
   }
 }

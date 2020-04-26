@@ -2,7 +2,8 @@
   "name": "ogame-bot-api",
   "version": "0.1.0",
   "description": "Api to interact with ogame",
-  "main": "index.js",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
@@ -10,8 +11,17 @@
     "lint": "tslint -p .",
     "lint:fix": "tslint --fix -p ."
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Noe Rivals",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noeRls/ogame-bot-api.git"
+  },
+  "keywords": [
+    "ogame",
+    "bot",
+    "api"
+  ],
   "dependencies": {
     "@types/node": "^13.13.0",
     "@types/puppeteer": "^2.0.1",
@@ -21,5 +31,8 @@
   "devDependencies": {
     "tslint": "^6.1.1",
     "typescript": "^3.8.3"
+  },
+  "bin": {
+    "ogame-bot": "build/ogame-bot.js"
   }
 }
