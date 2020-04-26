@@ -5,7 +5,7 @@ export interface Meter {
     min: number;
     max: number;
     value: number;
-};
+}
 
 export const getMeter = async (elem: ElementHandle<Element>, id: number, page: Page): Promise<Meter> => {
     const pannel = await openPannel(page, elem, id);
@@ -17,4 +17,4 @@ export const getMeter = async (elem: ElementHandle<Element>, id: number, page: P
             value: Number(meter.getAttribute('value')),
         };
     });
-}
+};

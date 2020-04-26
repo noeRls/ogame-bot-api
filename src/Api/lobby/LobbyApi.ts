@@ -1,28 +1,27 @@
 import Axios from 'axios';
-import { User, Server, Account, GameLoginResponse } from '../types';
-import { GameApi } from './GameApi';
+import { User, Server, Account, GameLoginResponse } from './types';
+import { GameApi } from '../game/GameApi';
 
 const axios = Axios.create({
   withCredentials: true,
   baseURL: 'https://lobby.ogame.gameforge.com/api',
 });
 
-export class Api {
-  user: User
-  __cookie: string
-  constructor() {
-  }
+export class LobbyApi {
+  user: User;
+  // tslint:disable-next-line:variable-name
+  __cookie: string;
 
   async login(email: string, password: string): Promise<void> {
     const response = await axios.post('/users', {
       credentials: {
         email,
-        password
-      }
+        password,
+      },
     });
     this.__cookie = response.headers['set-cookie'][0];
     axios.interceptors.request.use(config => {
-      config.headers['cookie'] = this.__cookie;
+      config.headers.cookie = this.__cookie;
       return config;
     });
     await this.__refreshUser();
@@ -35,12 +34,12 @@ export class Api {
   }
 
   async getAccounts(): Promise<Account[]> {
-    const { data }: {data: Account[]} = await axios.get('/users/me/accounts')
+    const { data }: {data: Account[]} = await axios.get('/users/me/accounts');
     return data;
   }
 
   async listServers(): Promise<Server[]> {
-    const { data }: {data: Server[]} = await axios.get('/servers')
+    const { data }: {data: Server[]} = await axios.get('/servers');
     return data;
   }
 

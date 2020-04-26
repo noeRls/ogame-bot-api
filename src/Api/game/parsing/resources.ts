@@ -1,8 +1,7 @@
-import { ElementHandle, Page } from 'puppeteer'
-import { Mine, Building, ResourceList, Storage, ResourceFactoryList, ALL_RESOURCES, ALL_MINES, BuildingList, MineType, MineList, StorageList, ALL_STORAGES } from '../gameTypes';
+import { Page } from 'puppeteer';
+import { ResourceList, ResourceFactoryList, ALL_MINES, StorageList, ALL_STORAGES, MineList } from '../types';
 import { loadBuildings } from './building';
-import { stringToResourceType } from '../typeHelper';
-import { openPannel } from './pannel';
+import { stringToResourceType } from '../typesHelper';
 import { getMeter } from './utils';
 
 export const loadMinesAndStorage = async (page: Page): Promise<ResourceFactoryList> => {
@@ -10,8 +9,7 @@ export const loadMinesAndStorage = async (page: Page): Promise<ResourceFactoryLi
     const storages: StorageList = {};
     const minesBuilding = Object.values(await loadBuildings(page, ALL_MINES, true));
     const storagesBuilding = Object.values(await loadBuildings(page, ALL_STORAGES, true));
-    for (let i = 0; i < minesBuilding.length; i++) {
-        const mine = minesBuilding[i]
+    for (const mine of minesBuilding) {
         const classnames = (await mine.__elem.evaluate(e => e.getAttribute('class'))).split(' ');
         const resource = stringToResourceType(classnames.find(cl => stringToResourceType(cl, true)));
         mines[mine.type] = {
@@ -19,8 +17,7 @@ export const loadMinesAndStorage = async (page: Page): Promise<ResourceFactoryLi
             resource,
         };
     }
-    for (let i = 0; i < storagesBuilding.length; i++) {
-        const storage = storagesBuilding[i]
+    for (const storage of storagesBuilding) {
         const classnames = (await storage.__elem.evaluate(e => e.getAttribute('class'))).split(' ');
         const resource = stringToResourceType(classnames.find(cl => stringToResourceType(cl, true)));
         const capacity = (await getMeter(storage.__elem, storage.id, page)).max;
@@ -31,7 +28,7 @@ export const loadMinesAndStorage = async (page: Page): Promise<ResourceFactoryLi
         };
     }
     return ({ mines, storages });
-}
+};
 
 export const loadResources = async (page: Page): Promise<ResourceList> => {
     return page.evaluate(() => {
@@ -41,7 +38,7 @@ export const loadResources = async (page: Page): Promise<ResourceList> => {
             'resources_deuterium',
             'resources_energy',
             'resources_darkmatter',
-        ]
+        ];
         const elements = ids.map(id => document.querySelector(`[id=${id}]`));
         const values = elements.map(elem => Number(elem.getAttribute('data-raw')));
         const resources: ResourceList = {
@@ -49,8 +46,8 @@ export const loadResources = async (page: Page): Promise<ResourceList> => {
             crystal: values[1],
             deuterium: values[2],
             energy: values[3],
-            darkmatter: values[4]
+            darkmatter: values[4],
         };
         return resources;
     });
-}
+};

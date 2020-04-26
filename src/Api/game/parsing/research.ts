@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { ALL_RESEARCH, ResearchList, ResearchType } from '../gameTypes';
+import { ALL_RESEARCH, ResearchList, ResearchType } from '../types';
 import { loadBuildings } from './building';
 
 export const loadResearch = async (page: Page): Promise<ResearchList> => {

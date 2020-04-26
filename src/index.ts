@@ -1,4 +1,4 @@
-import { bot } from './bot';
+import { bot } from './bot/bot';
 
 bot().catch(e => {
   console.error(e);

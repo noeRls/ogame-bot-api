@@ -1,7 +1,6 @@
 import { Page } from 'puppeteer';
-import { Facilities, FacilitiesList, ALL_FACILITIES, FacilitieType } from '../gameTypes';
+import { FacilitiesList, ALL_FACILITIES, FacilitieType } from '../types';
 import { loadBuildings } from './building';
-import { stringToFacilitieType } from '../typeHelper';
 import { getMeter } from './utils';
 
 export const loadFacilities = async (page: Page): Promise<FacilitiesList> => {
@@ -9,4 +8,4 @@ export const loadFacilities = async (page: Page): Promise<FacilitiesList> => {
     const { max } = await getMeter(facilities.missileSilo.__elem, facilities.missileSilo.id, page);
     facilities.missileSilo.capacity = max;
     return facilities;
-}
+};

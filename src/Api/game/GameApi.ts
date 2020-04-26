@@ -1,8 +1,10 @@
 import Axios, { AxiosInstance } from 'axios';
-import { User, Server, Account } from '../types';
+import { Account } from '../lobby/types';
 import * as puppeteer from 'puppeteer';
-import { ResourceList, ResourceFactoryList, Mine, Building, Upgrade, ResourceType, Facilities, FacilitiesList, ResearchList, ShipList, Ship, DefenseList, Defense, DefenseType } from './gameTypes';
-import { stringToResourceType } from './typeHelper';
+import {
+    ResourceList, ResourceFactoryList, Upgrade, ResourceType,
+    FacilitiesList, ResearchList, ShipList, Ship, DefenseList, Defense,
+} from './types';
 import { loadMinesAndStorage, loadResources } from './parsing/resources';
 import { loadFacilities } from './parsing/facilities';
 import { loadResearch } from './parsing/research';
@@ -10,12 +12,12 @@ import { loadShips, createShipFromPannel } from './parsing/ship';
 import { createDefenseFromPannel, loadDefenses } from './parsing/defenses';
 
 export class GameApi {
-    account: Account
-    axios: AxiosInstance
-    browser: puppeteer.Browser
-    page: puppeteer.Page
-    cookie: string
-    loginUrl: string
+    account: Account;
+    axios: AxiosInstance;
+    browser: puppeteer.Browser;
+    page: puppeteer.Page;
+    cookie: string;
+    loginUrl: string;
     constructor(cookie: string, account: Account, loginUrl: string) {
         this.cookie = cookie;
         this.loginUrl = loginUrl;
@@ -25,12 +27,30 @@ export class GameApi {
           baseURL: this.getServerUrl(),
         });
         this.axios.interceptors.request.use(config => {
-            if (!config.headers['cookie']) {
-                config.headers['cookie'] = '';
+            if (!config.headers.cookie) {
+                config.headers.cookie = '';
             }
-            config.headers['cookie'] += cookie;
+            config.headers.cookie += cookie;
             return config;
         });
+    }
+
+    async init() {
+        this.browser = await puppeteer.launch();
+        this.page = await this.browser.newPage();
+        const [name, other] = this.cookie.split('=');
+        const [value] = other.split(';');
+        await this.page.setCookie({
+            name,
+            value,
+            url: this.getServerUrl(),
+        });
+        await this.page.setViewport({
+            width: 1280,
+            height: 960,
+        });
+        await this.page.goto(this.loginUrl);
+        // await this.page.screenshot({ path: './out.png' });
     }
 
     getServerUrl() {
@@ -61,34 +81,16 @@ export class GameApi {
         await this.page.goto(`${this.getServerUrl()}/game/index.php?page=ingame&component=defenses`);
     }
 
-    async init() {
-        this.browser = await puppeteer.launch();
-        this.page = await this.browser.newPage();
-        const [name, other] = this.cookie.split('=');
-        const [value] = other.split(';');
-        await this.page.setCookie({
-            name,
-            value,
-            url: this.getServerUrl()
-        });
-        await this.page.setViewport({
-            width: 1280,
-            height: 960
-        });
-        await this.page.goto(this.loginUrl);
-        // await this.page.screenshot({ path: './out.png' });
-    }
-
     async stop() {
         await this.browser.close();
     }
 
-    async listRessources(): Promise<ResourceList> {
+    async resourcesList(): Promise<ResourceList> {
         await this.goToHomePage();
         return loadResources(this.page);
     }
 
-    async ressourceFactoryList(): Promise<ResourceFactoryList> {
+    async resourceFactoryList(): Promise<ResourceFactoryList> {
         await this.goToResourcePage();
         const res = await loadMinesAndStorage(this.page);
         return res;
@@ -115,7 +117,7 @@ export class GameApi {
     }
 
     async makeUpgrade(upgrade: Upgrade) {
-        const resources = await this.listRessources();
+        const resources = await this.resourcesList();
         if (!this.canUpgrade(upgrade, resources)) {
             throw new Error(`Can't upgrade`);
         }
@@ -130,19 +132,19 @@ export class GameApi {
             } else {
                 return false;
             }
-        })
+        });
     }
 
-    canUpgrade(upgrade: Upgrade, resources: ResourceList): Boolean {
+    canUpgrade(upgrade: Upgrade, resources: ResourceList): boolean {
         return upgrade.url && this.__haveEnoughResource(upgrade, resources);
     }
 
-    canCreate(item: Ship | Defense, resources: ResourceList, count: number): Boolean {
+    canCreate(item: Ship | Defense, resources: ResourceList, count: number): boolean {
         return this.__haveEnoughResource(item.upgrade, resources, count) && item.status === 'on';
     }
 
     async createShip(ship: Ship, count: number) {
-        const resources = await this.listRessources();
+        const resources = await this.resourcesList();
         if (!this.canCreate(ship, resources, count)) {
             throw new Error(`Not enough resources`);
         }
@@ -151,7 +153,7 @@ export class GameApi {
     }
 
     async createDefense(defense: Defense, count: number) {
-        const resources = await this.listRessources();
+        const resources = await this.resourcesList();
         if (!this.canCreate(defense, resources, count)) {
             throw new Error(`Not enough resources`);
         }

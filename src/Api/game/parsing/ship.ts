@@ -1,7 +1,7 @@
 import { Page } from 'puppeteer';
-import { ALL_CIVIL_SHIP, ALL_BATTLE_SHIP, ALL_SHIP, ShipList, ShipCategory, ShipType, Ship } from '../gameTypes';
+import { ALL_BATTLE_SHIP, ALL_SHIP, ShipList, ShipCategory, ShipType, Ship } from '../types';
 import { loadBuildings } from './building';
-import { openPannel, pannelCreate } from './pannel';
+import { pannelCreate } from './pannel';
 
 export const loadShips = async (page: Page): Promise<ShipList> => {
     const buildings = await loadBuildings<ShipType>(page, ALL_SHIP);
@@ -19,4 +19,4 @@ export const loadShips = async (page: Page): Promise<ShipList> => {
 export const createShipFromPannel = async (page: Page, ship: Ship, count: number): Promise<void> => {
     ship.__elem = await page.$(`[data-technology="${ship.id}"]`);
     await pannelCreate(page, ship.__elem, ship.id, count);
-}
+};

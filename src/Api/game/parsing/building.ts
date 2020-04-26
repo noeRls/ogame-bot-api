@@ -1,5 +1,5 @@
-import { Building, Upgrade, ResourceType, ResourceList, Status, BuildingLight, RecordConditional, BuildingType, BuildingList } from "../gameTypes";
-import { stringToStatus, stringToResourceType, stringToFacilitieType, getEmptyResourceList } from "../typeHelper";
+import { Upgrade, ResourceList, Status, BuildingLight, BuildingType, BuildingList } from "../types";
+import { stringToStatus, stringToResourceType, getEmptyResourceList } from "../typesHelper";
 import { Page, ElementHandle } from 'puppeteer';
 import { openPannel } from "./pannel";
 
@@ -10,11 +10,11 @@ const getBuildingUpgradeUrl = async (status: Status, elem: ElementHandle<Element
         return await elem.evaluate(e => {
             const button = e.querySelector('button');
             if (!button) return undefined;
-            return button.getAttribute('data-target')
+            return button.getAttribute('data-target');
         });
     }
     return undefined;
-}
+};
 
 // Page should have upgrade pannel open
 const getUpgradeCosts = async (page: Page): Promise<ResourceList> => {
@@ -31,7 +31,7 @@ const getUpgradeCosts = async (page: Page): Promise<ResourceList> => {
         costs[resource] = value;
     }));
     return costs;
-}
+};
 
 const parseDateInterval = (time: string): number => {
     let total = 0;
@@ -40,7 +40,7 @@ const parseDateInterval = (time: string): number => {
     let streak = 0;
     let currNb = 0;
     while (offset >= 0) {
-        const c = time.charAt(offset)
+        const c = time.charAt(offset);
         if (isNaN(Number(c))) {
             total += currNb * factor;
             factor = 0;
@@ -58,7 +58,7 @@ const parseDateInterval = (time: string): number => {
         offset -= 1;
     }
     return total;
-}
+};
 
 // Page should have upgrade pannel open
 const getUpgradeTime = async (page: Page): Promise<number> => {
@@ -66,7 +66,7 @@ const getUpgradeTime = async (page: Page): Promise<number> => {
     const timeElem = await buildTimeDiv.$('time');
     const timeString = await timeElem.evaluate(e => e.getAttribute('datetime'));
     return parseDateInterval(timeString);
-}
+};
 
 const loadUpgrade = async (building: BuildingLight, elem: ElementHandle<Element>, page: Page): Promise<Upgrade> => {
     await openPannel(page, elem, building.id);
@@ -75,7 +75,7 @@ const loadUpgrade = async (building: BuildingLight, elem: ElementHandle<Element>
         url: await getBuildingUpgradeUrl(building.status, elem),
         time: await getUpgradeTime(page),
     };
-}
+};
 
 export const loadBuildingLight = async (elem: ElementHandle<Element>, page: Page): Promise<BuildingLight> => {
     const id = Number(await elem.evaluate(e => e.getAttribute('data-technology')));
@@ -84,26 +84,25 @@ export const loadBuildingLight = async (elem: ElementHandle<Element>, page: Page
         let levelElem = e.querySelector('[class=level]');
         if (!levelElem) levelElem = e.querySelector('[class=amount]');
         return Number(levelElem.getAttribute('data-value')) + Number(levelElem.getAttribute('data-bonus'));
-    })
+    });
     const building: BuildingLight = {
         id,
         status,
         level,
     };
     building.upgrade = await loadUpgrade(building, elem, page);
-    return building
-}
+    return building;
+};
 
 export async function loadBuildings<T extends BuildingType>(
     page: Page,
     allTypes: T[],
-    silenceError: Boolean = false,
-    selector: string = "[data-technology]"
+    silenceError: boolean = false,
+    selector: string = "[data-technology]",
 ): Promise<BuildingList<T>> {
     const elems = await page.$$(selector);
     const buildings: BuildingList<T> = {};
-    for (let i = 0; i < elems.length; i++) {
-        const elem = elems[i];
+    for (const elem of elems) {
         const classnames = (await elem.evaluate(e => e.getAttribute('class'))).split(' ');
         const type: T | undefined = allTypes.find(t => classnames.some(c => c.toLowerCase() === t.toLowerCase()));
         if (!type) {
