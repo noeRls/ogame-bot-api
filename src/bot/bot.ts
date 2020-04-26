@@ -43,7 +43,7 @@ const run = async (username: string, password: string) => {
     } finally {
         await game.stop();
     }
-}
+};
 
 export async function bot(): Promise<void> {
     const args = yargs
