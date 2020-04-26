@@ -1,12 +1,13 @@
 import Axios, { AxiosInstance } from 'axios';
 import { User, Server, Account } from '../types';
 import * as puppeteer from 'puppeteer';
-import { ResourceList, ResourceFactoryList, Mine, Building, Upgrade, ResourceType, Facilities, FacilitiesList, ResearchList, ShipList, Ship } from './gameTypes';
+import { ResourceList, ResourceFactoryList, Mine, Building, Upgrade, ResourceType, Facilities, FacilitiesList, ResearchList, ShipList, Ship, DefenseList, Defense, DefenseType } from './gameTypes';
 import { stringToResourceType } from './typeHelper';
 import { loadMinesAndStorage, loadResources } from './parsing/resources';
 import { loadFacilities } from './parsing/facilities';
 import { loadResearch } from './parsing/research';
 import { loadShips, createShipFromPannel } from './parsing/ship';
+import { createDefenseFromPannel, loadDefenses } from './parsing/defenses';
 
 export class GameApi {
     account: Account
@@ -54,6 +55,10 @@ export class GameApi {
 
     async goToShipPage() {
         await this.page.goto(`${this.getServerUrl()}/game/index.php?page=ingame&component=shipyard`);
+    }
+
+    async goToDefensePage() {
+        await this.page.goto(`${this.getServerUrl()}/game/index.php?page=ingame&component=defenses`);
     }
 
     async init() {
@@ -104,6 +109,11 @@ export class GameApi {
         return loadShips(this.page);
     }
 
+    async defenseList(): Promise<DefenseList> {
+        await this.goToDefensePage();
+        return loadDefenses(this.page);
+    }
+
     async makeUpgrade(upgrade: Upgrade) {
         const resources = await this.listRessources();
         if (!this.canUpgrade(upgrade, resources)) {
@@ -127,7 +137,7 @@ export class GameApi {
         return upgrade.url && this.__haveEnoughResource(upgrade, resources);
     }
 
-    canCreate(item: Ship, resources: ResourceList, count: number): Boolean {
+    canCreate(item: Ship | Defense, resources: ResourceList, count: number): Boolean {
         return this.__haveEnoughResource(item.upgrade, resources, count) && item.status === 'on';
     }
 
@@ -138,5 +148,14 @@ export class GameApi {
         }
         await this.goToShipPage();
         await createShipFromPannel(this.page, ship, count);
+    }
+
+    async createDefense(defense: Defense, count: number) {
+        const resources = await this.listRessources();
+        if (!this.canCreate(defense, resources, count)) {
+            throw new Error(`Not enough resources`);
+        }
+        await this.goToDefensePage();
+        await createDefenseFromPannel(this.page, defense, count);
     }
 }

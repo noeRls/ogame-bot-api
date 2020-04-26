@@ -99,8 +99,9 @@ export async function bot(): Promise<void> {
         // console.log(await game.ressourceFactoryList());
         // console.log(await game.researchList());
         const ships = await game.shipList();
-        if (game.canCreate(ships.fighterLight, resources, 1)) {
-            await game.createShip(ships.fighterLight, 1);
+        const defenses = await game.defenseList();
+        if (game.canCreate(defenses.rocketLauncher, resources, 1)) {
+            await game.createDefense(defenses.rocketLauncher, 1);
         }
     } finally {
         await game.stop();

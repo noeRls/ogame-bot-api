@@ -34,7 +34,6 @@ export type BuildingList<T extends BuildingType> = RecordConditional<T, Building
 export type MineType = 'metalMine' | 'crystalMine' | 'deuteriumSynthesizer' | 'solarPlant' | 'fusionPlant';
 export const ALL_MINES: MineType[] = ['metalMine', 'crystalMine', 'deuteriumSynthesizer', 'solarPlant', 'fusionPlant'];
 export interface Mine extends Building<MineType> {
-    production?: number; // TODO implement
     resource: ResourceType;
 }
 export type MineList = RecordConditional<MineType, Mine>;
@@ -80,3 +79,10 @@ export interface Ship extends Building<ShipType> {
     category: ShipCategory;
 };
 export type ShipList = RecordConditional<ShipType, Ship>;
+
+export type DefenseType = 'rocketLauncher' | 'laserCannonLight' | 'laserCannonHeavy' | 'gaussCannon' | 'ionCannon' | 'plasmaCannon' |
+    'shieldDomeSmall' | 'shieldDomeLarge' | 'missileInterceptor' | 'missileInterplanetary';
+export const ALL_DEFENSES: DefenseType[] = ['rocketLauncher', 'laserCannonLight', 'laserCannonHeavy', 'gaussCannon', 'ionCannon', 'plasmaCannon',
+    'shieldDomeSmall', 'shieldDomeLarge', 'missileInterceptor', 'missileInterplanetary'];
+export interface Defense extends Building<DefenseType> {};
+export type DefenseList = RecordConditional<DefenseType, Defense>;

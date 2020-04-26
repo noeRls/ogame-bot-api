@@ -1,6 +1,5 @@
 import { Building, Upgrade, ResourceType, ResourceList, Status, BuildingLight, RecordConditional, BuildingType, BuildingList } from "../gameTypes";
 import { stringToStatus, stringToResourceType, stringToFacilitieType, getEmptyResourceList } from "../typeHelper";
-import { getCosts } from "../ogameStatic";
 import { Page, ElementHandle } from 'puppeteer';
 import { openPannel } from "./pannel";
 
