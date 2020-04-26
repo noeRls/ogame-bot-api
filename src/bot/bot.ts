@@ -1,5 +1,6 @@
 import { GameApi, LobbyApi } from '../Api';
 import { selectAccount, selectLastPlayedAccount } from './lobby/account';
+import * as yargs from 'yargs';
 
 function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -24,9 +25,9 @@ const dumbLoop = async (game: GameApi) => {
     }
 };
 
-export async function bot(): Promise<void> {
+const run = async (username: string, password: string) => {
     const api = new LobbyApi();
-    await api.login('noe.rivals@gmail.com', 'Xr2Q1S5d@u8$O$rZ');
+    await api.login(username, password);
     const account = await selectLastPlayedAccount(api);
     const game = await api.loadGame(account);
     try {
@@ -42,4 +43,25 @@ export async function bot(): Promise<void> {
     } finally {
         await game.stop();
     }
+}
+
+export async function bot(): Promise<void> {
+    const args = yargs
+    .usage('Usage: $0 --mail [mail] --password [password]')
+    .option('mail', {
+      description: 'The mail of the ogame account',
+      required: true,
+      alias: 'm',
+      type: 'string',
+    })
+    .option('password', {
+      description: 'The password of the ogame account',
+      alias: 'p',
+      required: true,
+      type: 'string',
+    })
+    .help()
+    .alias('help', 'h')
+    .argv;
+    await run(args.mail, args.password);
 }
