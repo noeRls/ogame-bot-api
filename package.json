@@ -1,6 +1,6 @@
 {
-  "name": "ogame-api",
-  "version": "1.0.0",
+  "name": "ogame-bot-api",
+  "version": "0.1.0",
   "description": "Api to interact with ogame",
   "main": "index.js",
   "scripts": {
