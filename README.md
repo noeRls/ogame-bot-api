@@ -1,6 +1,6 @@
 # ogame-bot-api
 
-Api used to create a bot for [ogame](https://ogame.fr)
+Api to create a bot for [ogame](https://ogame.fr)
 
 This is the first API that allow direct intercation on user account.
 
