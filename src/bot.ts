@@ -73,11 +73,9 @@ const dumbLoop = async (game: GameApi) => {
         console.log('fetching...')
         const resources = await game.listRessources();
         const factory = await game.ressourceFactoryList();
-        console.log(resources);
         const mines = Object.values(factory.mines);
         for (let i = 0; i < mines.length; i++) {
             const mine = mines[i];
-            console.log(mine);
             if (game.canUpgrade(mine.upgrade, resources)) {
                 console.log('upgrade !');
                 await game.makeUpgrade(mine.upgrade);
@@ -85,7 +83,6 @@ const dumbLoop = async (game: GameApi) => {
             }
         }
         console.log('sleeping');
-        return;
         await sleep(60 * 1000);
     }
 }
@@ -96,9 +93,15 @@ export async function bot(): Promise<void> {
     const account = await selectAccount(api);
     const game = await api.loadGame(account);
     try {
+        // await dumbLoop(game);
         // console.log(await game.facilitiesList());
-        // console.log(await game.listRessources());
+        const resources = await game.listRessources();
         // console.log(await game.ressourceFactoryList());
+        // console.log(await game.researchList());
+        const ships = await game.shipList();
+        if (game.canCreate(ships.fighterLight, resources, 1)) {
+            await game.createShip(ships.fighterLight, 1);
+        }
     } finally {
         await game.stop();
     }

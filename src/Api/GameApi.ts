@@ -1,10 +1,12 @@
 import Axios, { AxiosInstance } from 'axios';
 import { User, Server, Account } from '../types';
 import * as puppeteer from 'puppeteer';
-import { ResourceList, ResourceFactoryList, Mine, Building, Upgrade, ResourceType, Facilities, FacilitiesList } from './gameTypes';
+import { ResourceList, ResourceFactoryList, Mine, Building, Upgrade, ResourceType, Facilities, FacilitiesList, ResearchList, ShipList, Ship } from './gameTypes';
 import { stringToResourceType } from './typeHelper';
 import { loadMinesAndStorage, loadResources } from './parsing/resources';
 import { loadFacilities } from './parsing/facilities';
+import { loadResearch } from './parsing/research';
+import { loadShips, createShipFromPannel } from './parsing/ship';
 
 export class GameApi {
     account: Account
@@ -46,6 +48,14 @@ export class GameApi {
         await this.page.goto(`${this.getServerUrl()}/game/index.php?page=ingame&component=facilities`);
     }
 
+    async goToResearchPage() {
+        await this.page.goto(`${this.getServerUrl()}/game/index.php?page=ingame&component=research`);
+    }
+
+    async goToShipPage() {
+        await this.page.goto(`${this.getServerUrl()}/game/index.php?page=ingame&component=shipyard`);
+    }
+
     async init() {
         this.browser = await puppeteer.launch();
         this.page = await this.browser.newPage();
@@ -84,21 +94,49 @@ export class GameApi {
         return loadFacilities(this.page);
     }
 
+    async researchList(): Promise<ResearchList> {
+        await this.goToResearchPage();
+        return loadResearch(this.page);
+    }
+
+    async shipList(): Promise<ShipList> {
+        await this.goToShipPage();
+        return loadShips(this.page);
+    }
+
     async makeUpgrade(upgrade: Upgrade) {
-        if (!upgrade.url) {
-            throw new Error("Upgrade doesn't have an url");
+        const resources = await this.listRessources();
+        if (!this.canUpgrade(upgrade, resources)) {
+            throw new Error(`Can't upgrade`);
         }
         await this.page.goto(upgrade.url);
     }
 
-    canUpgrade(upgrade: Upgrade, resources: ResourceList): Boolean {
-        return upgrade.url && !Object.keys(upgrade.costs).some((resource: ResourceType) => {
+    __haveEnoughResource(upgrade: Upgrade, resources: ResourceList, count: number = 1) {
+        return !Object.keys(upgrade.costs).some((resource: ResourceType) => {
             if (resource === 'energy') return false;
-            if (resources[resource] < upgrade.costs[resource]) {
+            if (resources[resource] < upgrade.costs[resource] * count) {
                 return true;
             } else {
                 return false;
             }
         })
+    }
+
+    canUpgrade(upgrade: Upgrade, resources: ResourceList): Boolean {
+        return upgrade.url && this.__haveEnoughResource(upgrade, resources);
+    }
+
+    canCreate(item: Ship, resources: ResourceList, count: number): Boolean {
+        return this.__haveEnoughResource(item.upgrade, resources, count) && item.status === 'on';
+    }
+
+    async createShip(ship: Ship, count: number) {
+        const resources = await this.listRessources();
+        if (!this.canCreate(ship, resources, count)) {
+            throw new Error(`Not enough resources`);
+        }
+        await this.goToShipPage();
+        await createShipFromPannel(this.page, ship, count);
     }
 }

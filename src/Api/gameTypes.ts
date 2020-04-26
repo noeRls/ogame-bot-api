@@ -55,6 +55,28 @@ export interface ResourceFactoryList {
 export type FacilitieType = 'roboticsFactory' | 'shipyard' | 'researchLaboratory' | 'allianceDepot' | 'missileSilo' | 'naniteFactory' | 'terraformer' | 'repairDock';
 export const ALL_FACILITIES: FacilitieType[] = ['roboticsFactory', 'shipyard', 'researchLaboratory', 'allianceDepot', 'missileSilo', 'naniteFactory', 'terraformer', 'repairDock'];
 export interface Facilities extends Building<FacilitieType> {
-    capacity?: number
-}
+    capacity?: number;
+};
 export type FacilitiesList = RecordConditional<FacilitieType, Facilities>;
+
+export type ResearchType = 'energyTechnology' | 'laserTechnology' | 'ionTechnology' | 'hyperspaceTechnology' |
+    'plasmaTechnology' | 'combustionDriveTechnology' | 'impulseDriveTechnology' | 'hyperspaceDriveTechnology' |
+    'espionageTechnology' | 'computerTechnology' | 'astrophysicsTechnology' | 'researchNetworkTechnology' |
+    'gravitonTechnology' | 'weaponsTechnology' | 'shieldingTechnology' | 'armorTechnology';
+export const ALL_RESEARCH: ResearchType[] = ['energyTechnology', 'laserTechnology', 'ionTechnology', 'hyperspaceTechnology',
+    'plasmaTechnology', 'combustionDriveTechnology', 'impulseDriveTechnology', 'hyperspaceDriveTechnology',
+    'espionageTechnology', 'computerTechnology', 'astrophysicsTechnology', 'researchNetworkTechnology',
+    'gravitonTechnology', 'weaponsTechnology', 'shieldingTechnology', 'armorTechnology'];
+export interface Research extends Building<ResearchType> {};
+export type ResearchList = RecordConditional<ResearchType, Research>;
+
+export type ShipType = 'fighterLight' | 'fighterHeavy' | 'cruiser' | 'battleship' | 'interceptor' | 'bomber' | 'destroyer' | 'deathstar' |
+    'reaper' | 'explorer' | 'transporterSmall' | 'transporterLarge' | 'colonyShip' | 'recycler' | 'espionageProbe' | 'solarSatellite' | 'resbuggy';
+export const ALL_BATTLE_SHIP: ShipType[] = ['fighterLight', 'fighterHeavy', 'cruiser', 'battleship', 'interceptor', 'bomber', 'destroyer', 'deathstar', 'reaper', 'explorer'];
+export const ALL_CIVIL_SHIP: ShipType[] = ['transporterSmall', 'transporterLarge', 'colonyShip', 'recycler', 'espionageProbe', 'solarSatellite', 'resbuggy'];
+export const ALL_SHIP: ShipType[] = [...ALL_BATTLE_SHIP, ...ALL_CIVIL_SHIP];
+export type ShipCategory = 'battle' | 'civil';
+export interface Ship extends Building<ShipType> {
+    category: ShipCategory;
+};
+export type ShipList = RecordConditional<ShipType, Ship>;

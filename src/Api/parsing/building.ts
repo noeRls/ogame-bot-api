@@ -8,7 +8,11 @@ const COST_SELECTOR = '[class=costs]';
 
 const getBuildingUpgradeUrl = async (status: Status, elem: ElementHandle<Element>): Promise<string | undefined> => {
     if (status === 'on') {
-        return await elem.evaluate(e => e.querySelector('button').getAttribute('data-target'));
+        return await elem.evaluate(e => {
+            const button = e.querySelector('button');
+            if (!button) return undefined;
+            return button.getAttribute('data-target')
+        });
     }
     return undefined;
 }
@@ -77,11 +81,11 @@ const loadUpgrade = async (building: BuildingLight, elem: ElementHandle<Element>
 export const loadBuildingLight = async (elem: ElementHandle<Element>, page: Page): Promise<BuildingLight> => {
     const id = Number(await elem.evaluate(e => e.getAttribute('data-technology')));
     const status = stringToStatus(await elem.evaluate(e => e.getAttribute('data-status')));
-    const level = 1 /* await elem.evaluate(e => {
-        let levelElem = e.querySelector('[level]');
-        if (!levelElem) levelElem = e.querySelector('[amount]');
+    const level = await elem.evaluate(e => {
+        let levelElem = e.querySelector('[class=level]');
+        if (!levelElem) levelElem = e.querySelector('[class=amount]');
         return Number(levelElem.getAttribute('data-value')) + Number(levelElem.getAttribute('data-bonus'));
-    })*/
+    })
     const building: BuildingLight = {
         id,
         status,
