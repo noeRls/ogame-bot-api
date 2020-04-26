@@ -1,7 +1,7 @@
 {
   "name": "ogame-bot-api",
   "version": "0.1.0",
-  "description": "Api to interact with ogame",
+  "description": "Api to create a bot for ogame",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
