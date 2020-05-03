@@ -1,5 +1,8 @@
 # ogame-bot-api
 
+[![npm](https://img.shields.io/npm/v/ogame-bot-api.svg)](https://www.npmjs.com/package/ogame-bot-api)
+[![npm](https://img.shields.io/npm/l/ogame-bot-api.svg)](https://github.com/noeRls/ogame-bot-api/blob/master/LICENSE)
+
 Api to create a bot for [ogame](https://ogame.fr)
 
 This Api allow direct intercation on user account.
@@ -8,7 +11,7 @@ It is writen in **typescript**
 
 It uses [puppeteer](https://github.com/puppeteer/puppeteer) to simulate user interactions and get game informations.
 
-### installation
+## installation
 
 Install from npm to your dependencies [ogame-bot-api](https://www.npmjs.com/package/ogame-bot-api)
 
@@ -16,7 +19,7 @@ Install from npm to your dependencies [ogame-bot-api](https://www.npmjs.com/pack
 npm install --save ogame-bot-api
 ```
 
-## Api
+# Api
 
 There is two API:
 - the `LobbyApi` that is used to login the user and get user servers info
@@ -24,7 +27,7 @@ There is two API:
 
 Documentation can be found [here](https://noerls.github.io/ogame-bot-api/modules/_index_.html)
 
-### Supported feature
+## Supported feature
 
 - `LobbyApi`
   - Login
@@ -41,7 +44,7 @@ Documentation can be found [here](https://noerls.github.io/ogame-bot-api/modules
     - ships
     - defenses
 
-### Examples
+## Examples
 
 Multiples examples can be found in `examples` folder
 
@@ -86,11 +89,11 @@ function main() {
 }
 ```
 
-## Bot
+# Bot
 
 A bot is currently in development
 
-#### installation
+## installation
 
 Install it globally from npm [ogame-bot-api](https://www.npmjs.com/package/ogame-bot-api)
 
