@@ -14,14 +14,14 @@ export interface Upgrade {
     time: number;
 }
 
-export type Status = 'disabled' | 'on' | 'off';
-export const ALL_STATUS: Status[] = ['disabled', 'on', 'off'];
+export type Status = 'disabled' | 'on' | 'off' | 'active';
+export const ALL_STATUS: Status[] = ['disabled', 'on', 'off', 'active'];
 
 export interface BuildingLight {
     id: number;
     status: Status;
     level: number;
-    upgrade?: Upgrade;
+    upgrade: Upgrade;
 }
 
 export type BuildingType = string;

@@ -27,21 +27,8 @@ const createNewAccount = async (api: LobbyApi): Promise<Account> => {
     await pickServer(api);
 };
 
-const sortAccountByLastLogin = (accounts: Account[]): Account[] => {
-    return accounts.sort((a, b) => {
-        const da = new Date(a.lastLogin);
-        const db = new Date(b.lastLogin);
-        return db.getTime() - da.getTime();
-    });
-};
-
-export const selectLastPlayedAccount = async (api: LobbyApi): Promise<Account> => {
-    const accounts = sortAccountByLastLogin(await api.getAccounts());
-    return accounts[0];
-};
-
 export const selectAccount = async (api: LobbyApi): Promise<Account> => {
-    const accounts = sortAccountByLastLogin(await api.getAccounts());
+    const accounts = await api.getAccounts();
     const selected = await multiSelect(accounts.map(a => `${a.name} - last login: ${a.lastLogin}`));
     return accounts[selected];
 };

@@ -7,11 +7,26 @@ const axios = Axios.create({
   baseURL: 'https://lobby.ogame.gameforge.com/api',
 });
 
-export class LobbyApi {
-  user: User;
-  // tslint:disable-next-line:variable-name
-  __cookie: string;
+const sortAccountByLastLogin = (accounts: Account[]): Account[] => {
+  return accounts.sort((a, b) => {
+      const da = new Date(a.lastLogin);
+      const db = new Date(b.lastLogin);
+      return db.getTime() - da.getTime();
+  });
+};
 
+/**
+ * The LobbyApi is used to login, get servers informations and load the GameApi
+ */
+export class LobbyApi {
+  private user: User;
+  private cookie: string;
+
+  /**
+   *
+   * @param email Email of the ogame account
+   * @param password Password of the ogame account
+   */
   async login(email: string, password: string): Promise<void> {
     const response = await axios.post('/users', {
       credentials: {
@@ -19,40 +34,67 @@ export class LobbyApi {
         password,
       },
     });
-    this.__cookie = response.headers['set-cookie'][0];
+    this.cookie = response.headers['set-cookie'][0];
     axios.interceptors.request.use(config => {
-      config.headers.cookie = this.__cookie;
+      config.headers.cookie = this.cookie;
       return config;
     });
-    await this.__refreshUser();
+    await this.refreshUser();
   }
 
+  /**
+   * @returns Returns the gloabl user informations
+   */
   async me(): Promise<User> {
     const { data } : { data: User } = await axios.get('/users/me');
-    console.log(`Connected with ${data.email}`);
     return data;
   }
 
+  /**
+   * @returns Returns the user accounts. The user accounts are the
+   * differents server which the user is already connected at least one time
+   */
   async getAccounts(): Promise<Account[]> {
     const { data }: {data: Account[]} = await axios.get('/users/me/accounts');
-    return data;
+    return sortAccountByLastLogin(data);
   }
 
+  /**
+   * @returns Returns the list of all ogame servers.
+   */
   async listServers(): Promise<Server[]> {
     const { data }: {data: Server[]} = await axios.get('/servers');
     return data;
   }
 
-  async __refreshUser() {
+  /**
+   * @hidden
+   */
+  private async refreshUser() {
     this.user = await this.me();
+    console.log(`Connected with ${this.user.email}`);
     this.user.accounts = await this.getAccounts();
   }
 
+  /**
+   * Select last account played by the user
+   */
+  async selectLastPlayedAccount(): Promise<Account> {
+    const accounts = sortAccountByLastLogin(await this.getAccounts());
+    if (accounts.length === 0) throw new Error(`User don't have accounts`);
+    return accounts[0];
+  }
+
+
+  /**
+   * Load the GameApi
+   * @param account The selected account to load the game
+   */
   async loadGame(account: Account): Promise<GameApi> {
-    console.log(`Loading game api ${account.server.number}...`);
+    console.log(`Loading game api with server s${account.server.number}-${account.server.language}`);
     const { data: login } : { data: GameLoginResponse} = await axios.get(`/users/me/loginLink?id=${account.id}&server[language]=${account.server.language}&server[number]=${account.server.number}&clickedButton=account_list`);
-    const api = new GameApi(this.__cookie, account, login.url);
-    await api.init();
+    const api = new GameApi(this.cookie, account, login.url);
+    await api.start();
     return api;
   }
 }

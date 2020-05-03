@@ -68,11 +68,11 @@ const getUpgradeTime = async (page: Page): Promise<number> => {
     return parseDateInterval(timeString);
 };
 
-const loadUpgrade = async (building: BuildingLight, elem: ElementHandle<Element>, page: Page): Promise<Upgrade> => {
-    await openPannel(page, elem, building.id);
+const loadUpgrade = async (status: Status, id: number, elem: ElementHandle<Element>, page: Page): Promise<Upgrade> => {
+    await openPannel(page, elem, id);
     return {
         costs: await getUpgradeCosts(page),
-        url: await getBuildingUpgradeUrl(building.status, elem),
+        url: await getBuildingUpgradeUrl(status, elem),
         time: await getUpgradeTime(page),
     };
 };
@@ -89,8 +89,8 @@ export const loadBuildingLight = async (elem: ElementHandle<Element>, page: Page
         id,
         status,
         level,
+        upgrade: await loadUpgrade(status, id, elem, page),
     };
-    building.upgrade = await loadUpgrade(building, elem, page);
     return building;
 };
 

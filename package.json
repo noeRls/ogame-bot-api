@@ -9,7 +9,8 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "lint": "tslint -p .",
-    "lint:fix": "tslint --fix -p ."
+    "lint:fix": "tslint --fix -p .",
+    "generate-docs": "typedoc --theme minimal --excludePrivate --out docs --mode library src/index.ts src/types.ts"
   },
   "author": "Noe Rivals",
   "license": "MIT",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "tslint": "^6.1.1",
+    "typedoc": "^0.17.0-3",
     "typescript": "^3.8.3"
   },
   "bin": {

@@ -5,7 +5,6 @@ const getUpgradePannelXpath = (id: number) => `//*[@data-technology-id=${id}][@i
 export const openPannel = async (page: Page, elem: ElementHandle<Element>, id: number)
     : Promise<ElementHandle<Element>> => {
     await elem.click();
-    await page.screenshot({ path: './out.png' });
     await page.waitForXPath(getUpgradePannelXpath(id), {timeout: 2000});
     return getPannel(page);
 };
