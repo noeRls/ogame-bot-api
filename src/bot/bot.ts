@@ -4,7 +4,12 @@ import { compute } from './compute';
 
 const run = async (username: string, password: string) => {
     const api = new LobbyApi();
-    await api.login(username, password);
+    try {
+        await api.login(username, password);
+    } catch (e) {
+        console.error('Failed to login, wrong credentials');
+        process.exit(1);
+    }
     const account = await api.selectLastPlayedAccount();
     const game = await api.loadGame(account);
     try {

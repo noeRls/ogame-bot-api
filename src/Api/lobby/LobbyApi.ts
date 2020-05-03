@@ -28,18 +28,22 @@ export class LobbyApi {
    * @param password Password of the ogame account
    */
   async login(email: string, password: string): Promise<void> {
-    const response = await axios.post('/users', {
-      credentials: {
-        email,
-        password,
-      },
-    });
-    this.cookie = response.headers['set-cookie'][0];
-    axios.interceptors.request.use(config => {
-      config.headers.cookie = this.cookie;
-      return config;
-    });
-    await this.refreshUser();
+    try {
+      const response = await axios.post('/users', {
+        credentials: {
+          email,
+          password,
+        },
+      });
+      this.cookie = response.headers['set-cookie'][0];
+      axios.interceptors.request.use(config => {
+        config.headers.cookie = this.cookie;
+        return config;
+      });
+      await this.refreshUser();
+    } catch (e) {
+      throw new Error('Failed to login');
+    }
   }
 
   /**
