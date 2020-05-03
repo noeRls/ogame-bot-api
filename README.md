@@ -22,7 +22,7 @@ There is two API:
 - the `LobbyApi` that is used to login the user and get user servers info
 - the `GameApi` that is used to interact with the game itself, create and list ressources/ship/research...
 
-Documentation can be found [here](https://htmlpreview.github.io/noeRls/ogame-bot-api/tree/master/docs/modules/_index_.html)
+Documentation can be found [here](https://noerls.github.io/ogame-bot-api/modules/_index_.html)
 
 ### Supported feature
 
