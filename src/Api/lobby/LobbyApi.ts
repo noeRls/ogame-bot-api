@@ -29,15 +29,20 @@ export class LobbyApi {
    */
   async login(email: string, password: string): Promise<void> {
     try {
-      const response = await axios.post('/users', {
-        credentials: {
-          email,
-          password,
-        },
+      const response = await axios.post('https://gameforge.com/api/v1/auth/thin/sessions', {
+        autoGameAccountCreation: false,
+        gameEnvironmentId: "0a31d605-ffaf-43e7-aa02-d06df7116fc8",
+        gfLang: "en",
+        identity: email,
+        locale: "en_GB",
+        password: password,
+        platformGameId: "1dfd8e7e-6e1a-4eb1-8c64-03c3b62efd2f",
       });
+      const { token } = response.data;
       this.cookie = response.headers['set-cookie'][0];
       axios.interceptors.request.use(config => {
         config.headers.cookie = this.cookie;
+        config.headers.authorization = `Bearer ${token}`;
         return config;
       });
       await this.refreshUser();
