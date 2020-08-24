@@ -35,7 +35,7 @@ export class LobbyApi {
         gfLang: "en",
         identity: email,
         locale: "en_GB",
-        password: password,
+        password,
         platformGameId: "1dfd8e7e-6e1a-4eb1-8c64-03c3b62efd2f",
       });
       const { token } = response.data;
